@@ -18,7 +18,8 @@ public class StorageController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam(value = "file") MultipartFile file) {
-        return new ResponseEntity<>(service.uploadFile(file), HttpStatus.OK);
+        String uploadedFileName = service.uploadFile(file);
+        return ResponseEntity.ok().body("File uploaded: " + uploadedFileName);
     }
 
     @GetMapping("/download/{fileName}")

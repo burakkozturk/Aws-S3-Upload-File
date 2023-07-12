@@ -1,6 +1,8 @@
 package aws.s3.demo.service;
 
 
+import aws.s3.demo.model.Image;
+import aws.s3.demo.repository.ImageRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
@@ -20,6 +22,8 @@ import java.io.IOException;
 @Slf4j
 public class StorageService {
 
+    @Autowired
+    private ImageRepository imageRepository;
     @Value("${application.bucket.name}")
     private String bucketName;
 
@@ -31,7 +35,15 @@ public class StorageService {
         String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
         s3Client.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
         fileObj.delete();
-        return "File uploaded : " + fileName;
+
+        // UploadedFile nesnesini oluşturun ve veritabanına kaydedin
+        Image uploadedFile = new Image();
+        uploadedFile.setFileName(fileName);
+        uploadedFile.setOriginalFileName(file.getOriginalFilename());
+        uploadedFile.setFilePath(bucketName + "/" + fileName);
+        imageRepository.save(uploadedFile);
+
+        return "File uploaded: " + fileName;
     }
 
 
